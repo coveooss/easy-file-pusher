@@ -7,6 +7,7 @@ using Coveo.Connectors.Utilities.PlatformSdk;
 using Coveo.Connectors.Utilities.PlatformSdk.Config;
 using Coveo.Connectors.Utilities.PlatformSdk.Helpers;
 using Coveo.Connectors.Utilities.PlatformSdk.Model.Document;
+using Coveo.Connectors.Utilities.PlatformSdk.Request;
 
 namespace Coveo.Connectors.EasyFilePusher
 {
@@ -39,10 +40,23 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <param name="p_Args">Parsed command-line arguments.</param>
         private static void IndexFiles(ProgramArguments p_Args)
         {
+            string folder = Path.GetFullPath(p_Args.Folder);
+            if (!folder.EndsWith(Path.DirectorySeparatorChar)) {
+                folder += Path.DirectorySeparatorChar;
+            }
+            Console.WriteLine($"Pushing files \"{p_Args.Include}\" from folder \"{folder}\"...");
+
+            ulong orderingId = RequestOrderingUtilities.CreateOrderingId();
+
             ICoveoPlatformConfig platformConfig = new CoveoPlatformConfig(GetPushApiUrl(p_Args),  GetPlatformApiUrl(p_Args), p_Args.ApiKey, p_Args.Organization);
             using (ICoveoPlatformClient platformClient = new CoveoPlatformClient(platformConfig)) {
                 IList<PushDocument> documentBatch = new List<PushDocument>();
-                foreach (FileInfo fileInfo in new DirectoryInfo(p_Args.Folder).EnumerateFiles(p_Args.Include, p_Args.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
+                foreach (FileInfo fileInfo in new DirectoryInfo(folder).EnumerateFiles(p_Args.Include, p_Args.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
+                    if (!fileInfo.FullName.StartsWith(folder)) {
+                        throw new Exception("Unexpected file gathered from outside the source folder.");
+                    }
+                    Console.WriteLine(fileInfo.FullName.Substring(folder.Length));
+
                     PushDocument document = new PushDocument(new Uri(fileInfo.FullName).AbsoluteUri) {
                         ModifiedDate = fileInfo.LastWriteTimeUtc
                     };
@@ -51,12 +65,15 @@ namespace Coveo.Connectors.EasyFilePusher
 
                     if (documentBatch.Count >= p_Args.BatchSize) {
                         // Push this batch of documents.
-                        SendBatch(platformClient, documentBatch, p_Args.SourceId);
+                        SendBatch(platformClient, documentBatch, p_Args.SourceId, orderingId);
                     }
                 }
 
                 // Send the (partial) final batch of documents.
-                SendBatch(platformClient, documentBatch, p_Args.SourceId);
+                SendBatch(platformClient, documentBatch, p_Args.SourceId, orderingId);
+
+                // Delete the already indexed files that no longer exist.
+                platformClient.DocumentManager.DeleteDocumentsOlderThan(p_Args.SourceId, orderingId, null);
             }
         }
 
@@ -66,15 +83,17 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <param name="p_PlatformClient">The instance of <see cref="ICoveoPlatformClient"/> to use.</param>
         /// <param name="p_DocumentBatch">The batch of documents to send.</param>
         /// <param name="p_SourceId">ID of the source in which to push documents.</param>
+        /// <param name="p_OrderingId">The ordering identifier.</param>
         private static void SendBatch(ICoveoPlatformClient p_PlatformClient,
                                       IList<PushDocument> p_DocumentBatch,
-                                      string p_SourceId)
+                                      string p_SourceId,
+                                      ulong p_OrderingId)
         {
             if (p_DocumentBatch.Count == 0) {
                 return;
             }
 
-            p_PlatformClient.DocumentManager.AddOrUpdateDocuments(p_SourceId, p_DocumentBatch, null);
+            p_PlatformClient.DocumentManager.AddOrUpdateDocuments(p_SourceId, p_DocumentBatch, p_OrderingId);
 
             p_DocumentBatch.Clear();
         }
