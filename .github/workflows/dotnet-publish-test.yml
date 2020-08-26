@@ -32,8 +32,7 @@ jobs:
     - name: Zip WinX86 EXE
       uses: thedoctor0/zip-release@master
       with:
-        filename: 'EasyFilePusher_WinX86.zip'
-        path: './bin/Release/netcoreapp3.1/publish'
+        filename: './bin/Release/netcoreapp3.1/publish/EasyFilePusher_WinX86.zip'
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
         exclusions: '*.pdb'
         type: zip
