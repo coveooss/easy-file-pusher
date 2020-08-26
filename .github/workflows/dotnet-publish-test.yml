@@ -33,6 +33,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         filename: 'EasyFilePusher_WinX86.zip'
+        path: './bin/Release/netcoreapp3.1/publish'
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
         exclusions: '*.pdb'
         type: zip
