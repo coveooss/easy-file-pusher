@@ -30,9 +30,10 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
     - name: Zip WinX86 EXE
+      working-directory: ./bin/Release/netcoreapp3.1/publish
       uses: thedoctor0/zip-release@master
       with:
-        filename: './bin/Release/netcoreapp3.1/publish/EasyFilePusher_WinX86.zip'
-        directory: './bin/Release/netcoreapp3.1/publish/WinX86'
+        filename: 'EasyFilePusher_WinX86.zip'
+        directory: './WinX86'
         exclusions: '*.pdb'
         type: zip
