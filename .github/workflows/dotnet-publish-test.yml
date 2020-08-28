@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  build:
     runs-on: ubuntu-latest
     steps:
 
@@ -31,11 +31,27 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
 
+    - name: Publish MacOsx64
+      working-directory: ./src
+      run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
+
+    - name: Publish LinuxX64
+      working-directory: ./src
+      run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
+
     - name: Zip WinX86 EXE
       uses: thedoctor0/zip-release@master
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_WinX86.zip'
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
+        exclusions: '*.pdb'
+        type: zip
+
+    - name: Zip MacOsx64 EXE
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
+        directory: './bin/Release/netcoreapp3.1/publish/MacOsx64'
         exclusions: '*.pdb'
         type: zip
 
@@ -48,4 +64,4 @@ jobs:
         title: "Test Release"
         files: |
           ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
-          ppppp*.jar
+          ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
