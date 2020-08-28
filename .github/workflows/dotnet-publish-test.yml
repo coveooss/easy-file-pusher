@@ -39,12 +39,8 @@ jobs:
         exclusions: '*.pdb'
         type: zip
 
-    - name: Ppppp
-      run: "find -iname '*.zip'"
-
     - name: Create pre-release
       uses: marvinpinto/action-automatic-releases@latest
-      if: ${{false}}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
