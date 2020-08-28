@@ -2,9 +2,6 @@ name: Publish Test
 
 on: 
   workflow_dispatch:
-    inputs:
-      test:
-        description: 'Input test'  
 
 jobs:
   build-and-prerelease:
@@ -41,7 +38,6 @@ jobs:
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
         exclusions: '*.pdb'
         type: zip
-          echo "done!"
 
     - name: Create pre-release
       uses: marvinpinto/action-automatic-releases@latest
