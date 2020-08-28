@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-prerelease:
+  build-and-release:
     runs-on: ubuntu-latest
     steps:
 
@@ -39,13 +39,17 @@ jobs:
         exclusions: '*.pdb'
         type: zip
 
+    - name: Ppppp
+      run: "find -iname '*.zip'"
+
     - name: Create pre-release
       uses: marvinpinto/action-automatic-releases@latest
+      if: ${{false}}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Test Build"
+        title: "Test Release"
         files: |
-          Coveo.Connectors.EasyFilePusher_WinX86.zip
+          ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
           ppppp*.jar
