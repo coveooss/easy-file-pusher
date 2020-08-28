@@ -7,32 +7,49 @@ on:
         description: 'Input test'  
 
 jobs:
-  build:
-
+  build-and-prerelease:
     runs-on: ubuntu-latest
-
     steps:
+
     - uses: actions/checkout@v2
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
+
     - name: Install dependencies
       working-directory: ./src
       run: dotnet restore
+
     - name: Build
       working-directory: ./src
       run: dotnet build --configuration Release --no-restore
+
     - name: Test
       working-directory: ./src
       run: dotnet test --no-restore --verbosity normal
+
     - name: Publish WinX86
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
+
     - name: Zip WinX86 EXE
       uses: thedoctor0/zip-release@master
       with:
-        filename: 'EasyFilePusher_WinX86.zip'
+        filename: 'Coveo.Connectors.EasyFilePusher_WinX86.zip'
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
         exclusions: '*.pdb'
         type: zip
+          echo "done!"
+
+    - name: Create pre-release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Test Build"
+        files: |
+          Coveo.Connectors.EasyFilePusher_WinX86.zip
+          ppppp*.jar
