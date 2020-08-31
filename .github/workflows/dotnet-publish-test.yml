@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: windows-latest
+    runs-on: macos-latest
     steps:
 
     - uses: actions/checkout@v2
@@ -65,6 +65,7 @@ jobs:
 
     - name: Release executables
       uses: marvinpinto/action-automatic-releases@latest
+      if: ${{false}}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
