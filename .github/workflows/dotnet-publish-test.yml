@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
 
     - uses: actions/checkout@v2
@@ -39,8 +39,20 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
+    - name: TEST SIGN PPPPP 1
+        id: write_file
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: 'win-cert.pfx'
+          encodedString: ${{ secrets.WINDOWS_CERT }}
+
+    - name: TEST SIGN PPPPP 2
+      working-directory: .
+      run: 'signtool sign /f win-cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
+
     - name: Zip WinX86 EXE
       uses: thedoctor0/zip-release@master
+      if: ${{false}}
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_WinX86.zip'
         directory: './bin/Release/netcoreapp3.1/publish/WinX86'
@@ -49,6 +61,7 @@ jobs:
 
     - name: Zip MacOsx64 EXE
       uses: thedoctor0/zip-release@master
+      if: ${{false}}
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
         directory: './bin/Release/netcoreapp3.1/publish/MacOsx64'
@@ -57,6 +70,7 @@ jobs:
 
     - name: Zip LinuxX64 EXE
       uses: thedoctor0/zip-release@master
+      if: ${{false}}
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_LinuxX64.zip'
         directory: './bin/Release/netcoreapp3.1/publish/LinuxX64'
@@ -75,3 +89,13 @@ jobs:
           ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
           ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
           ./bin/Release/netcoreapp3.1/publish/LinuxX64/Coveo.Connectors.EasyFilePusher_LinuxX64.zip
+
+    - name: TEST RELEASE ppppp
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Test Release"
+        files: |
+          ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher.exe
