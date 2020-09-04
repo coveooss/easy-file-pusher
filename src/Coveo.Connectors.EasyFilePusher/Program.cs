@@ -60,7 +60,7 @@ namespace Coveo.Connectors.EasyFilePusher
                     PushDocument document = new PushDocument(new Uri(fileInfo.FullName).AbsoluteUri) {
                         ModifiedDate = fileInfo.LastWriteTimeUtc
                     };
-                    PushDocumentHelper.SetContentFromFile(document, fileInfo.FullName);
+                    PushDocumentHelper.SetBinaryContentFromFileAndCompress(document, fileInfo.FullName);
                     documentBatch.Add(document);
 
                     if (documentBatch.Count >= p_Args.BatchSize) {
