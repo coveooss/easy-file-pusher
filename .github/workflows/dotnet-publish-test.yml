@@ -40,11 +40,11 @@ jobs:
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
     - name: TEST SIGN PPPPP 1
-        id: write_file
-        uses: timheuer/base64-to-file@v1
-        with:
-          fileName: 'win-cert.pfx'
-          encodedString: ${{ secrets.WINDOWS_CERT }}
+      id: write_file
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'win-cert.pfx'
+        encodedString: ${{ secrets.WINDOWS_CERT }}
 
     - name: TEST SIGN PPPPP 2
       working-directory: .
