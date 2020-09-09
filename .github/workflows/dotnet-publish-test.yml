@@ -41,7 +41,7 @@ jobs:
 
     - name: TEST SIGN PPPPP 0
       working-directory: .
-      run: 'DIR C:\signtool.exe /s /b'
+      run: 'CMD /r DIR C:\signtool.exe /s /b'
 
     - name: TEST SIGN PPPPP 1
       id: write_file
