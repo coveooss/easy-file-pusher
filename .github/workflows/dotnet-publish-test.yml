@@ -39,9 +39,13 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
-    - name: TEST SIGN PPPPP 0
+    - name: TEST SIGN PPPPP 0.1
       working-directory: .
-      run: 'CMD /r DIR C:\signtool.exe /s /b'
+      run: 'CMD /r DIR "C:\Program Files\signtool.exe" /s /b'
+
+    - name: TEST SIGN PPPPP 0.2
+      working-directory: .
+      run: 'CMD /r DIR "C:\Program Files (x86)\signtool.exe" /s /b'
 
     - name: TEST SIGN PPPPP 1
       id: write_file
