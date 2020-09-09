@@ -22,6 +22,21 @@ jobs:
     - name: Build
       working-directory: ./src
       run: dotnet build --configuration Release --no-restore
+      
+    - name: Prepare certificate 1/2
+      id: write_file
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'cert.pem'
+        encodedString: ${{ secrets.WINDOWS_CERT }}
+
+    - name: Prepare certificate 2/2
+      working-directory: .
+      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
+
+    - name: Sign assembly (ppppp testing)
+      working-directory: .
+      run: 'CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\Coveo.Connectors.EasyFilePusher.dll'
 
     - name: Compile WinX86
       working-directory: ./src
@@ -35,26 +50,15 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
-    - name: TEST SIGN PPPPP 1
-      id: write_file
-      uses: timheuer/base64-to-file@v1
-      with:
-        fileName: 'cert.pem'
-        encodedString: ${{ secrets.WINDOWS_CERT }}
-
-    - name: TEST SIGN PPPPP 2
-      working-directory: .
-      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
-
-    - name: TEST SIGN PPPPP 3
+    - name: Sign Windows executable
       working-directory: .
       run: 'CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
 
-    - name: TEST SIGN PPPPP 3
+    - name: Delete temp certificate 1/2
       working-directory: .
       run: 'DEL cert.pfx'
 
-    - name: TEST SIGN PPPPP 4
+    - name: Delete temp certificate 2/2
       working-directory: .
       run: 'DEL cert.pem'
 
