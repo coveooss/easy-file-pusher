@@ -46,7 +46,7 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <summary>
         /// 
         /// </summary>
-        [Option(Default = "*", HelpText = "Wildcard expression for which matching files will be pushed. All files are pushed by default")]
+        [Option(Default = "*", HelpText = "Wildcard expression for which matching files will be pushed. All files are pushed by default.")]
         public string Include { get; set; } = "";
 
         /// <summary>
