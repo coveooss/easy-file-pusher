@@ -27,21 +27,17 @@ jobs:
       working-directory: ./src
       run: dotnet test --no-restore --verbosity normal
 
-    - name: Publish WinX86
+    - name: Compile WinX86
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
 
-    - name: Publish MacOsx64
+    - name: Compile MacOsx64
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
 
-    - name: Publish LinuxX64
+    - name: Compile LinuxX64
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
-
-    - name: TEST SIGN PPPPP 0
-      working-directory: .
-      run: 'CMD /r DIR "C:\Program Files (x86)\signtool.exe" /s /b'
 
     - name: TEST SIGN PPPPP 1
       id: write_file
@@ -52,7 +48,7 @@ jobs:
 
     - name: TEST SIGN PPPPP 2
       working-directory: .
-      run: '"C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f win-cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
+      run: 'CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f win-cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
 
     - name: TEST SIGN PPPPP 3
       working-directory: .
