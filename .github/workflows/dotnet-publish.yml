@@ -1,4 +1,4 @@
-name: Publish Test
+name: Publish the Easy File Pusher tool.
 
 on: 
   push:
@@ -79,7 +79,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Test Release"
+        title: "Latest Release"
         files: |
           ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
           ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
