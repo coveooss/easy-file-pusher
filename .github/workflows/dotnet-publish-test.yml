@@ -39,16 +39,26 @@ jobs:
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
+    - name: TEST SIGN PPPPP 0
+      working-directory: .
+      run: 'DIR C:\signtool.exe /s /b'
+
     - name: TEST SIGN PPPPP 1
       id: write_file
       uses: timheuer/base64-to-file@v1
+      if: ${{false}}
       with:
         fileName: 'win-cert.pfx'
         encodedString: ${{ secrets.WINDOWS_CERT }}
 
     - name: TEST SIGN PPPPP 2
       working-directory: .
+      if: ${{false}}
       run: 'signtool sign /f win-cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
+
+    - name: TEST SIGN PPPPP 3
+      working-directory: .
+      run: 'DEL win-cert.pfx'
 
     - name: Zip WinX86 EXE
       uses: thedoctor0/zip-release@master
