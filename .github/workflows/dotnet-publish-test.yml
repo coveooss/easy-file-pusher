@@ -23,10 +23,6 @@ jobs:
       working-directory: ./src
       run: dotnet build --configuration Release --no-restore
 
-    - name: Test
-      working-directory: ./src
-      run: dotnet test --no-restore --verbosity normal
-
     - name: Compile WinX86
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
@@ -48,7 +44,7 @@ jobs:
 
     - name: TEST SIGN PPPPP 2
       working-directory: .
-      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"$${{ secrets.WINDOWS_CERT_PWD }}"'
+      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
 
     - name: TEST SIGN PPPPP 3
       working-directory: .
