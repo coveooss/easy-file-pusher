@@ -23,7 +23,7 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <summary>
         /// Entry point of the program.
         /// </summary>
-        /// <param name="p_Args"></param>
+        /// <param name="p_Args">Command-line arguments.</param>
         private static void Main(string[] p_Args)
         {
             new Parser(settings => {
