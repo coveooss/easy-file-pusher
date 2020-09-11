@@ -1,6 +1,6 @@
 # easy-file-pusher
 
-The Coveo Easy File Pusher is a command-line tool to push documents stored in the local file system to a Coveo Push source. The source must have been created first using the Coveo Administration Console. Then the tool scans the specified local folder and pushes the files matching the specified filter. Launching the tool without any arguments displays the usage i.e. the arguments that can be specified on the command line.
+The Coveo Easy File Pusher is a command-line tool to push documents stored in the local file system to a Coveo Push source. The source must have been created first using the Coveo Administration Console. Then running the tool scans the specified local folder and pushes the files matching the specified filter. Launching the tool without any arguments displays the usage i.e. the arguments that can be specified on the command line.
 
 Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core: Windows, Mac and Linux. An executable for each supported operating system is available for download.
 
