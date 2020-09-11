@@ -34,7 +34,8 @@ namespace Coveo.Connectors.EasyFilePusher
 
         [Option('f', nameof(folder),
             Required = true,
-            HelpText = "Path of the local folder that contains the documents to index.")] public string folder { get; set; } = "";
+            HelpText = "Path of the local folder that contains the documents to index.")]
+        public string folder { get; set; } = "";
 
         [Option(
             Default = "*",
