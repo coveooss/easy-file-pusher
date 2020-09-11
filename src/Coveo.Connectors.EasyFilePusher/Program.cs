@@ -18,7 +18,7 @@ namespace Coveo.Connectors.EasyFilePusher
     {
         private const string INVALID_CLOUD_REGION = "Invalid cloud region.";
         private const string INVALID_CLOUD_ENVIRONMENT = "Invalid cloud environment.";
-        private const string HIPAA_INVALID_FOR_EUWEST1 = "The " + nameof(CloudEnvironment.Hipaa) + " environment is not available for the region " + nameof(CloudRegion.EuWest1) + ".";
+        private const string HIPAA_IS_FOR_US_ONLY = "The " + nameof(CloudEnvironment.Hipaa) + " environment is valid only for the region " + nameof(CloudRegion.UsEast1) + ".";
 
         /// <summary>
         /// Entry point of the program.
@@ -40,7 +40,7 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <param name="p_Args">Parsed command-line arguments.</param>
         private static void IndexFiles(ProgramArguments p_Args)
         {
-            string folder = Path.GetFullPath(p_Args.Folder);
+            string folder = Path.GetFullPath(p_Args.folder);
             if (!folder.EndsWith(Path.DirectorySeparatorChar)) {
                 folder += Path.DirectorySeparatorChar;
             }
@@ -48,7 +48,7 @@ namespace Coveo.Connectors.EasyFilePusher
 
             ulong orderingId = RequestOrderingUtilities.CreateOrderingId();
 
-            ICoveoPlatformConfig platformConfig = new CoveoPlatformConfig(GetPushApiUrl(p_Args),  GetPlatformApiUrl(p_Args), p_Args.ApiKey, p_Args.Organization);
+            ICoveoPlatformConfig platformConfig = new CoveoPlatformConfig(GetPushApiUrl(p_Args),  GetPlatformApiUrl(p_Args), p_Args.apikey, p_Args.organizationid);
             using (ICoveoPlatformClient platformClient = new CoveoPlatformClient(platformConfig)) {
                 IList<PushDocument> documentBatch = new List<PushDocument>();
                 foreach (FileInfo fileInfo in new DirectoryInfo(folder).EnumerateFiles(p_Args.Include, p_Args.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
@@ -60,20 +60,24 @@ namespace Coveo.Connectors.EasyFilePusher
                     PushDocument document = new PushDocument(new Uri(fileInfo.FullName).AbsoluteUri) {
                         ModifiedDate = fileInfo.LastWriteTimeUtc
                     };
-                    PushDocumentHelper.SetBinaryContentFromFileAndCompress(document, fileInfo.FullName);
+                    document.AddMetadata("title", fileInfo.Name);
+                    document.AddMetadata("fileextension", fileInfo.Extension);
+                    if (fileInfo.Length > 0) {
+                        PushDocumentHelper.SetBinaryContentFromFileAndCompress(document, fileInfo.FullName);
+                    }
                     documentBatch.Add(document);
 
                     if (documentBatch.Count >= p_Args.BatchSize) {
                         // Push this batch of documents.
-                        SendBatch(platformClient, documentBatch, p_Args.SourceId, orderingId);
+                        SendBatch(platformClient, documentBatch, p_Args.sourceid, orderingId);
                     }
                 }
 
                 // Send the (partial) final batch of documents.
-                SendBatch(platformClient, documentBatch, p_Args.SourceId, orderingId);
+                SendBatch(platformClient, documentBatch, p_Args.sourceid, orderingId);
 
                 // Delete the already indexed files that no longer exist.
-                platformClient.DocumentManager.DeleteDocumentsOlderThan(p_Args.SourceId, orderingId, null);
+                platformClient.DocumentManager.DeleteDocumentsOlderThan(p_Args.sourceid, orderingId, null);
             }
         }
 
@@ -105,9 +109,9 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <returns>The push API endpoint URL to use.</returns>
         private static string GetPushApiUrl(ProgramArguments p_Args)
         {
-            switch (p_Args.Region) {
+            switch (p_Args.region) {
                 case CloudRegion.UsEast1:
-                    switch (p_Args.Environment) {
+                    switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
                             return Constants.Endpoint.UsEast1.HIPAA_PUSH_API_URL;
                         case CloudEnvironment.Prod:
@@ -120,9 +124,9 @@ namespace Coveo.Connectors.EasyFilePusher
                             throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
                     }
                 case CloudRegion.EuWest1:
-                    switch (p_Args.Environment) {
+                    switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
-                            throw new InvalidEnumArgumentException(HIPAA_INVALID_FOR_EUWEST1);
+                            throw new InvalidEnumArgumentException(HIPAA_IS_FOR_US_ONLY);
                         case CloudEnvironment.Prod:
                             return Constants.Endpoint.EuWest1.PROD_PUSH_API_URL;
                         case CloudEnvironment.QA:
@@ -144,9 +148,9 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <returns>The platform endpoint URL to use.</returns>
         private static string GetPlatformApiUrl(ProgramArguments p_Args)
         {
-            switch (p_Args.Region) {
+            switch (p_Args.region) {
                 case CloudRegion.UsEast1:
-                    switch (p_Args.Environment) {
+                    switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
                             return Constants.PlatformEndpoint.UsEast1.HIPAA_PLATFORM_API_URL;
                         case CloudEnvironment.Prod:
@@ -159,9 +163,9 @@ namespace Coveo.Connectors.EasyFilePusher
                             throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
                     }
                 case CloudRegion.EuWest1:
-                    switch (p_Args.Environment) {
+                    switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
-                            throw new InvalidEnumArgumentException(HIPAA_INVALID_FOR_EUWEST1);
+                            throw new InvalidEnumArgumentException(HIPAA_IS_FOR_US_ONLY);
                         case CloudEnvironment.Prod:
                             return Constants.PlatformEndpoint.EuWest1.PROD_PLATFORM_API_URL;
                         case CloudEnvironment.QA:
