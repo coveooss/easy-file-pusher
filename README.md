@@ -40,14 +40,14 @@ ERROR(S):
 ```
 Note that for the most used arguments, each can be specified using either a long or a short name.
 
-Here is an example of what the command-line should look like when specifying all the required arguments:
+Here is an example of what the command line should look like when specifying all the required arguments:
 ```
 Coveo.Connectors.EasyFilePusher -e Prod -r UsEast1 -o OrgNameHerez1x2c3v4 -s OrgNameHerez1x2c3v4-q1w2e3r4t5y6u7i8o9p0zxcvbn --apikey xxaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee -f "C:\Folder\Path\Here"
 ```
 
 ## Supported Operating Systems
 
-Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core, so Windows, Mac and Linux. An executable for each supported operating system is available for download.
+Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core so Windows, Mac and Linux. An executable for each supported operating system is available for download.
 
 Regarding the executable for Linux, after downloading it to a Linux machine, the "is executable" flag must be set on the file before running it. This is necessary for the executable to work.
 
