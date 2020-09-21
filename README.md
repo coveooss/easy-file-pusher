@@ -10,7 +10,6 @@ There are 2 ways to provide the input values to the tool.
 
 The first way is to provide the input values on the command line. Running the tool with the --help argument displays the arguments that can be specified on the command line:
 ```
-ERROR(S):
   -e, --environment       Required. Cloud environment: Hipaa, Prod, QA or Dev.
 
   -r, --region            Required. Cloud region: UsEast1 or EuWest1.
