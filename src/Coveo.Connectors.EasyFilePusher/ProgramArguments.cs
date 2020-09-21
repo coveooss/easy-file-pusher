@@ -40,17 +40,17 @@ namespace Coveo.Connectors.EasyFilePusher
         [Option(
             Default = "*",
             HelpText = "Wildcard expression for which matching files will be pushed. All files are pushed by default.")]
-        public string Include { get; set; } = "";
+        public string include { get; set; } = "";
 
         [Option(
             Default = true,
             HelpText = "Whether to recursively search in sub-folders for files to push. Sub-folders are searched by default.")]
-        public bool Recursive { get; set; }
+        public bool recursive { get; set; }
 
         [Option(
             Default = 10,
             HelpText = "How many files to push per batch.")]
-        public int BatchSize { get; set; }
+        public int batchSize { get; set; }
     }
 
     /// <summary>

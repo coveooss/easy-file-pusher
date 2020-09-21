@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using CommandLine;
 using Coveo.Connectors.Utilities.PlatformSdk;
 using Coveo.Connectors.Utilities.PlatformSdk.Config;
@@ -26,12 +28,106 @@ namespace Coveo.Connectors.EasyFilePusher
         /// <param name="p_Args">Command-line arguments.</param>
         private static void Main(string[] p_Args)
         {
-            new Parser(settings => {
-                settings.CaseInsensitiveEnumValues = true;
-                settings.HelpWriter = Console.Out;
-            }).ParseArguments<ProgramArguments>(p_Args).WithParsed(parsedArgs => {
-                IndexFiles(parsedArgs);
-            });
+            if (p_Args.Length == 0) {
+                // Read the values interactively.
+                IndexFiles(GetProgramArgumentsInteractively());
+            } else {
+                // Use the values specified on the command line.
+                new Parser(settings => {
+                    settings.CaseInsensitiveEnumValues = true;
+                    settings.HelpWriter = Console.Out;
+                }).ParseArguments<ProgramArguments>(p_Args).WithParsed(parsedArgs => {
+                    IndexFiles(parsedArgs);
+                });
+            }
+        }
+
+        /// <summary>
+        /// Gets the program arguments by reading them interactively.
+        /// </summary>
+        /// <returns>Input arguments read from the keyboard.</returns>
+        private static ProgramArguments GetProgramArgumentsInteractively()
+        {
+            ProgramArguments programArgs = new ProgramArguments();
+
+            foreach (PropertyInfo property in typeof(ProgramArguments).GetProperties()) {
+                string helpText = "";
+                bool isRequired = false;
+                object? defaultValue = null;
+                foreach (CustomAttributeData attrData in property.CustomAttributes) {
+                    if (attrData.AttributeType == typeof(OptionAttribute)) {
+                        foreach (CustomAttributeNamedArgument namedArg in attrData.NamedArguments) {
+                            switch (namedArg.MemberName) {
+                                case nameof(OptionAttribute.HelpText):
+                                    helpText = (string) (namedArg.TypedValue.Value ?? "");
+                                    break;
+                                case nameof(OptionAttribute.Required):
+                                    isRequired = (bool) (namedArg.TypedValue.Value ?? false);
+                                    break;
+                                case nameof(OptionAttribute.Default):
+                                    defaultValue = namedArg.TypedValue.Value;
+                                    break;
+                            }
+                        }
+                        break;
+                    }
+                    Debug.Assert(isRequired != (defaultValue != null));
+                }
+
+                Console.WriteLine(helpText);
+                bool success = false;
+                while (!success) {
+                    Console.Write($"{property.Name}{(defaultValue == null ? "" : " [" + defaultValue + "]")}: ");
+
+                    string valueStr = Console.ReadLine().Trim();
+                    if (property.PropertyType == typeof(CloudEnvironment)) {
+                        Debug.Assert(isRequired);
+                        success = Enum.TryParse(valueStr, true, out CloudEnvironment environment);
+                        property.SetValue(programArgs, environment);
+                    } else if (property.PropertyType == typeof(CloudRegion)) {
+                        Debug.Assert(isRequired);
+                        success = Enum.TryParse(valueStr, true, out CloudRegion region);
+                        property.SetValue(programArgs, region);
+                    } else if (property.PropertyType == typeof(string)) {
+                        if (valueStr != "") {
+                            property.SetValue(programArgs, valueStr);
+                            success = true;
+                        } else if (defaultValue != null) {
+                            property.SetValue(programArgs, defaultValue);
+                            success = true;
+                        }
+                    } else if (property.PropertyType == typeof(int)) {
+                        if (valueStr != "") {
+                            success = int.TryParse(valueStr, out int intValue);
+                            property.SetValue(programArgs, intValue);
+                        } else if (defaultValue != null) {
+                            property.SetValue(programArgs, defaultValue);
+                            success = true;
+                        }
+                    } else if (property.PropertyType == typeof(bool)) {
+                        if (valueStr != "") {
+                            success = bool.TryParse(valueStr, out bool boolValue);
+                            property.SetValue(programArgs, boolValue);
+                        } else if (defaultValue != null) {
+                            property.SetValue(programArgs, defaultValue);
+                            success = true;
+                        }
+                    } else {
+                        Debug.Fail("Unsupported value type.");
+                    }
+
+                    if (!success) {
+                        ConsoleColor originalColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Invalid value.");
+                        Console.ForegroundColor = originalColor;
+                    }
+                }
+
+                Console.WriteLine();
+            }
+
+            return programArgs;
         }
 
         /// <summary>
@@ -44,14 +140,14 @@ namespace Coveo.Connectors.EasyFilePusher
             if (!folder.EndsWith(Path.DirectorySeparatorChar)) {
                 folder += Path.DirectorySeparatorChar;
             }
-            Console.WriteLine($"Pushing files \"{p_Args.Include}\" from folder \"{folder}\"...");
+            Console.WriteLine($"Pushing files \"{p_Args.include}\" from folder \"{folder}\"...");
 
             ulong orderingId = RequestOrderingUtilities.CreateOrderingId();
 
             ICoveoPlatformConfig platformConfig = new CoveoPlatformConfig(GetPushApiUrl(p_Args),  GetPlatformApiUrl(p_Args), p_Args.apikey, p_Args.organizationid);
             using (ICoveoPlatformClient platformClient = new CoveoPlatformClient(platformConfig)) {
                 IList<PushDocument> documentBatch = new List<PushDocument>();
-                foreach (FileInfo fileInfo in new DirectoryInfo(folder).EnumerateFiles(p_Args.Include, p_Args.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
+                foreach (FileInfo fileInfo in new DirectoryInfo(folder).EnumerateFiles(p_Args.include, p_Args.recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
                     if (!fileInfo.FullName.StartsWith(folder)) {
                         throw new Exception("Unexpected file gathered from outside the source folder.");
                     }
@@ -67,7 +163,7 @@ namespace Coveo.Connectors.EasyFilePusher
                     }
                     documentBatch.Add(document);
 
-                    if (documentBatch.Count >= p_Args.BatchSize) {
+                    if (documentBatch.Count >= p_Args.batchSize) {
                         // Push this batch of documents.
                         SendBatch(platformClient, documentBatch, p_Args.sourceid, orderingId);
                     }
