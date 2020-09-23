@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest]
     steps:
 
     - uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
       run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
 
     - name: Build MacOsx64 EXE
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
 
@@ -80,7 +80,7 @@ jobs:
         type: zip
 
     - name: Zip MacOsx64 EXE
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       uses: thedoctor0/zip-release@master
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
@@ -109,14 +109,4 @@ jobs:
         title: "Latest Release"
         files: |
           ./bin/Release/netcoreapp3.1/publish/LinuxX64/Coveo.Connectors.EasyFilePusher_LinuxX64.zip
-
-    - name: Release Mac executable
-      if: ${{ matrix.os == 'macos-latest' }}
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Latest Release"
-        files: |
           ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
