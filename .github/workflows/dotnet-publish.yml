@@ -7,85 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  linux-and-mac:
-    runs-on: ubuntu-latest
-    outputs:
-      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-
-    - uses: actions/checkout@v2
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
-
-    - name: Build
-      working-directory: ./src
-      run: dotnet build --configuration Release
-
-    - name: Build LinuxX64 EXE
-      working-directory: ./src
-      run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
-
-    - name: Build MacOsx64 EXE
-      working-directory: ./src
-      run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
-
-    - name: Zip LinuxX64 EXE
-      uses: thedoctor0/zip-release@master
-      with:
-        filename: 'Coveo.Connectors.EasyFilePusher_LinuxX64.zip'
-        directory: './bin/Release/netcoreapp3.1/publish/LinuxX64'
-        exclusions: '*.pdb'
-        type: zip
-
-    - name: Zip MacOsx64 EXE
-      uses: thedoctor0/zip-release@master
-      with:
-        filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
-        directory: './bin/Release/netcoreapp3.1/publish/MacOsx64'
-        exclusions: '*.pdb'
-        type: zip
-
-    - name: Delete existing release
-      uses: ame-yu/action-delete-latest-release@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: latest
-        release_name: Latest Release
-        draft: false
-        prerelease: false
-
-    - name: Release Linux executable
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/LinuxX64/Coveo.Connectors.EasyFilePusher_LinuxX64.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_LinuxX64.zip
-        asset_content_type: application/zip
-
-    - name: Release Mac executable
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_MacOsx64.zip
-        asset_content_type: application/zip
-
-  windows-and-release:
-    needs: linux-and-mac
+  build-and-release:
     runs-on: windows-latest
     steps:
 
@@ -100,18 +22,26 @@ jobs:
       working-directory: ./src
       run: dotnet build --configuration Release
 
-    - name: Build WinX86 EXE
+    - name: Compile WinX86
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
 
-    - name: Prepare Windows certificate 1/2
+    - name: Compile MacOsx64
+      working-directory: ./src
+      run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
+
+    - name: Compile LinuxX64
+      working-directory: ./src
+      run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
+
+    - name: Prepare certificate 1/2
       id: write_file
       uses: timheuer/base64-to-file@v1
       with:
         fileName: 'cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
 
-    - name: Prepare Windows certificate 2/2
+    - name: Prepare certificate 2/2
       working-directory: .
       run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
 
@@ -119,11 +49,11 @@ jobs:
       working-directory: .
       run: 'CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
 
-    - name: Delete Windows temp certificate 1/2
+    - name: Delete temp certificate 1/2
       working-directory: .
       run: 'DEL cert.pfx'
 
-    - name: Delete Windows temp certificate 2/2
+    - name: Delete temp certificate 2/2
       working-directory: .
       run: 'DEL cert.pem'
 
@@ -131,12 +61,22 @@ jobs:
       working-directory: .
       run: 'Compress-Archive bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher_WinX86.zip'
 
-    - name: Release Windows executable
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Zip MacOsx64 EXE
+      working-directory: .
+      run: 'Compress-Archive bin\Release\netcoreapp3.1\publish\MacOsx64\Coveo.Connectors.EasyFilePusher bin\Release\netcoreapp3.1\publish\MacOsx64\Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
+
+    - name: Zip LinuxX64 EXE
+      working-directory: .
+      run: 'Compress-Archive bin\Release\netcoreapp3.1\publish\LinuxX64\Coveo.Connectors.EasyFilePusher bin\Release\netcoreapp3.1\publish\LinuxX64\Coveo.Connectors.EasyFilePusher_LinuxX64.zip'
+
+    - name: Release executables
+      uses: marvinpinto/action-automatic-releases@latest
       with:
-        upload_url: ${{ needs.linux-and-mac.outputs.release_upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_WinX86.zip
-        asset_content_type: application/zip
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        title: "Latest Release"
+        files: |
+          ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
+          ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
+          ./bin/Release/netcoreapp3.1/publish/LinuxX64/Coveo.Connectors.EasyFilePusher_LinuxX64.zip
