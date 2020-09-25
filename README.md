@@ -54,7 +54,7 @@ Regarding the executable for Linux, after downloading it to a Linux machine, the
 chmod +x ./Coveo.Connectors.EasyFilePusher
 ```
 
-Regarding the executable for Mac, note that the executable has not been signed with a certificate. So running it requires a little trick to work-around a security warning. The following procedure should work:
+Regarding the executable for Mac, note that the executable has not been signed with a certificate. So running it requires a little trick to work around a security warning. The following procedure should work:
 1. Unzip the executable file.
 2. Control-click it > Open > Utilities > Terminal
 3. Then enter the requested input values.
