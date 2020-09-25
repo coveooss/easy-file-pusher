@@ -56,11 +56,7 @@ chmod +x ./Coveo.Connectors.EasyFilePusher
 
 Regarding the executable for Mac, note that the executable has not been signed with a certificate. So running it requires a little trick to work around a security warning. The following procedure should work:
 1. Unzip the executable file.
-2. Control-click it (or right-click) > Open (with) > Utilities > Terminal. (If Terminal is not available, change Enable: Recommended Aplications to Enable: All Apllications.)
-3. You'll get a security warning, for which you can click Open. The Terminal will probably not open, but clicking on Open is important.
-4. Open another Terminal in the directory where the tool was extracted.
-5. chmod +x ./Coveo.Connectors.EasyFilePusher
-6. ./Coveo.Connectors.EasyFilePusher
-7. Then enter the requested input values.
+2. Control-click it > Open > Utilities > Terminal
+3. Then enter the requested input values.
 
 More details about the Control-click trick can be found on the following Apple page: https://support.apple.com/en-ca/guide/mac-help/mh40616/mac
