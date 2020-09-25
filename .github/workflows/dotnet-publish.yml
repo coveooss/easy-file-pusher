@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  linux-and-mac:
+  linux-mac:
     runs-on: ubuntu-latest
     outputs:
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -84,8 +84,8 @@ jobs:
         asset_name: Coveo.Connectors.EasyFilePusher_MacOsx64.zip
         asset_content_type: application/zip
 
-  windows-and-release:
-    needs: linux-and-mac
+  windows:
+    needs: linux-mac
     runs-on: windows-latest
     steps:
 
@@ -136,7 +136,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ needs.linux-and-mac.outputs.release_upload_url }}
+        upload_url: ${{ needs.linux-mac.outputs.release_upload_url }}
         asset_path: ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
         asset_name: Coveo.Connectors.EasyFilePusher_WinX86.zip
         asset_content_type: application/zip
