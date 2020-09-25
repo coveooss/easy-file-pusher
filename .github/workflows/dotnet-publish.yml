@@ -1,6 +1,6 @@
 name: Publish the Easy File Pusher tool.
 
-on: 
+on:
   push:
     branches: [ master ]
   pull_request:
@@ -21,7 +21,7 @@ jobs:
     - name: Build
       working-directory: ./src
       run: dotnet build --configuration Release
-      
+
     - name: Compile WinX86
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
