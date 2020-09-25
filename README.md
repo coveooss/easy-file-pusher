@@ -49,11 +49,6 @@ The second way is to launch the tool without any arguments. The tool will then a
 
 Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core so Windows, Mac and Linux. An executable for each supported operating system is available for download.
 
-Regarding the executable for Linux, after downloading it to a Linux machine, the "is executable" flag must be set on the file before running it. This is necessary for the executable to work. At a command prompt, this can be done with the following command:
-```
-chmod +x ./Coveo.Connectors.EasyFilePusher
-```
-
 Regarding the executable for Mac, note that the executable has not been signed with a certificate. So running it requires a little trick to work around a security warning. The following procedure should work:
 1. Unzip the executable file.
 2. Control-click (or right-click) it > Open (with) > Utilities > Terminal. (If Terminal is not available, change Enable: Recommended Aplications to Enable: All Apllications.)
