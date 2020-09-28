@@ -14,7 +14,7 @@ namespace Coveo.Connectors.EasyFilePusher
 
         [Option('r', nameof(region),
             Required = true,
-            HelpText = "Cloud region: " + nameof(CloudRegion.UsEast1) + " or " + nameof(CloudRegion.EuWest1) + ".")]
+            HelpText = "Cloud region: " + nameof(CloudRegion.UsEast1) + ", " + nameof(CloudRegion.EuWest1) + " or " + nameof(CloudRegion.ApSouthEast2) + ".")]
         public CloudRegion region { get; set; }
 
         [Option('o', nameof(organizationid),
@@ -70,6 +70,7 @@ namespace Coveo.Connectors.EasyFilePusher
     internal enum CloudRegion
     {
         UsEast1,
-        EuWest1
+        EuWest1,
+        ApSouthEast2
     }
 }
