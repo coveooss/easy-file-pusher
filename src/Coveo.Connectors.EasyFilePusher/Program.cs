@@ -20,7 +20,7 @@ namespace Coveo.Connectors.EasyFilePusher
     {
         private const string INVALID_CLOUD_REGION = "Invalid cloud region.";
         private const string INVALID_CLOUD_ENVIRONMENT = "Invalid cloud environment.";
-        private const string HIPAA_IS_FOR_US_ONLY = "The " + nameof(CloudEnvironment.Hipaa) + " environment is valid only for the region " + nameof(CloudRegion.UsEast1) + ".";
+        private const string ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y = "The {0} environment is invalid for the region {1}.";
 
         /// <summary>
         /// Entry point of the program.
@@ -222,13 +222,24 @@ namespace Coveo.Connectors.EasyFilePusher
                 case CloudRegion.EuWest1:
                     switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
-                            throw new InvalidEnumArgumentException(HIPAA_IS_FOR_US_ONLY);
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, p_Args.environment, p_Args.region));
                         case CloudEnvironment.Prod:
                             return Constants.Endpoint.EuWest1.PROD_PUSH_API_URL;
                         case CloudEnvironment.QA:
                             return Constants.Endpoint.EuWest1.QA_PUSH_API_URL;
                         case CloudEnvironment.Dev:
                             return Constants.Endpoint.EuWest1.DEV_PUSH_API_URL;
+                        default:
+                            throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
+                    }
+                case CloudRegion.ApSouthEast2:
+                    switch (p_Args.environment) {
+                        case CloudEnvironment.Prod:
+                            return Constants.Endpoint.ApSoutheast2.PROD_PUSH_API_URL;
+                        case CloudEnvironment.Hipaa:
+                        case CloudEnvironment.QA:
+                        case CloudEnvironment.Dev:
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, p_Args.environment, p_Args.region));
                         default:
                             throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
                     }
@@ -261,13 +272,24 @@ namespace Coveo.Connectors.EasyFilePusher
                 case CloudRegion.EuWest1:
                     switch (p_Args.environment) {
                         case CloudEnvironment.Hipaa:
-                            throw new InvalidEnumArgumentException(HIPAA_IS_FOR_US_ONLY);
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, p_Args.environment, p_Args.region));
                         case CloudEnvironment.Prod:
                             return Constants.PlatformEndpoint.EuWest1.PROD_PLATFORM_API_URL;
                         case CloudEnvironment.QA:
                             return Constants.PlatformEndpoint.EuWest1.QA_PLATFORM_API_URL;
                         case CloudEnvironment.Dev:
                             return Constants.PlatformEndpoint.EuWest1.DEV_PLATFORM_API_URL;
+                        default:
+                            throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
+                    }
+                case CloudRegion.ApSouthEast2:
+                    switch (p_Args.environment) {
+                        case CloudEnvironment.Prod:
+                            return Constants.PlatformEndpoint.ApSoutheast2.PROD_PLATFORM_API_URL;
+                        case CloudEnvironment.Hipaa:
+                        case CloudEnvironment.QA:
+                        case CloudEnvironment.Dev:
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, p_Args.environment, p_Args.region));
                         default:
                             throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
                     }
