@@ -48,7 +48,7 @@ If you specify all required arguments, the command line should look as follows:
 Coveo.Connectors.EasyFilePusher -e Prod -r UsEast1 -o OrgNameHerez1x2c3v4 -s OrgNameHerez1x2c3v4-q1w2e3r4t5y6u7i8o9p0zxcvbn --apikey xxaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee -f "C:\Folder\Path\Here"
 ```
 
-### Specifying the input values interactively
+### Specifying the Configuration Values Interactively
 
 Alternatively, if you choose to launch the tool without any argument, it will then prompt you to enter the configuration values listed in the previous section, one after the other.
 
