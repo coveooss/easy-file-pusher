@@ -117,14 +117,8 @@ jobs:
     - name: ppppp 2.1
       uses: timheuer/base64-to-file@v1
       with:
-        fileName: 'ppppp1.pem'
+        fileName: 'ppppp.pem'
         encodedString: 'VGVzdA=='
-
-    - name: ppppp 2.2
-      uses: timheuer/base64-to-file@v1
-      with:
-        fileName: 'ppppp2.pem'
-        encodedString: ''
 
     - name: Prepare Windows certificate 1/2
       id: write_file
