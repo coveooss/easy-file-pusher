@@ -49,11 +49,13 @@ jobs:
         type: zip
 
     - name: Delete existing release
+      if: ${{ github.event_name == 'push' }}
       uses: ame-yu/action-delete-latest-release@v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create release
+      if: ${{ github.event_name == 'push' }}
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -65,6 +67,7 @@ jobs:
         prerelease: false
 
     - name: Release Linux executable
+      if: ${{ github.event_name == 'push' }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,6 +78,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Release Mac executable
+      if: ${{ github.event_name == 'push' }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,7 +109,7 @@ jobs:
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
 
     - name: Prepare Windows certificate 1/2
-      id: write_file
+      id: write_pem_file
       uses: timheuer/base64-to-file@v1
       with:
         fileName: 'cert.pem'
@@ -113,7 +117,7 @@ jobs:
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
-      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
+      run: 'CMD /r openssl pkcs12 -in ${{ steps.write_pem_file.outputs.filePath }} -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
 
     - name: Sign Windows executable
       working-directory: .
@@ -125,13 +129,14 @@ jobs:
 
     - name: Delete Windows temp certificate 2/2
       working-directory: .
-      run: 'DEL cert.pem'
+      run: 'DEL ${{ steps.write_pem_file.outputs.filePath }}'
 
     - name: Zip WinX86 EXE
       working-directory: .
       run: 'Compress-Archive bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher_WinX86.zip'
 
     - name: Release Windows executable
+      if: ${{ github.event_name == 'push' }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
