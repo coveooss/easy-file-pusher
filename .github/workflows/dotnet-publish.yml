@@ -104,38 +104,20 @@ jobs:
       working-directory: ./src
       run: dotnet build --configuration Release
 
-    - name: ppppp 1
-      run: CMD /r CD
-
     - name: Build WinX86 EXE
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
 
-    - name: ppppp 2
-      run: CMD /r CD
-
-    - name: ppppp 2.1
-      uses: timheuer/base64-to-file@v1
-      with:
-        fileName: 'ppppp.pem'
-        encodedString: 'VGVzdA=='
-
     - name: Prepare Windows certificate 1/2
-      id: write_file
+      id: write_pem_file
       uses: timheuer/base64-to-file@v1
       with:
         fileName: 'cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
 
-    - name: ppppp 3
-      run: CMD /r CD
-
-    - name: ppppp 4
-      run: CMD /r DIR *.pem
-
     - name: Prepare Windows certificate 2/2
       working-directory: .
-      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
+      run: 'CMD /r openssl pkcs12 -in ${{ steps.write_pem_file.outputs.filePath }} -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
 
     - name: Sign Windows executable
       working-directory: .
@@ -147,7 +129,7 @@ jobs:
 
     - name: Delete Windows temp certificate 2/2
       working-directory: .
-      run: 'DEL cert.pem'
+      run: 'DEL ${{ steps.write_pem_file.outputs.filePath }}'
 
     - name: Zip WinX86 EXE
       working-directory: .
