@@ -114,15 +114,30 @@ jobs:
     - name: ppppp 2
       run: CMD /r CD
 
+    - name: ppppp 2.1
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'ppppp1.pem'
+        encodedString: 'VGVzdA=='
+
+    - name: ppppp 2.2
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'ppppp2.pem'
+        encodedString: ''
+
     - name: Prepare Windows certificate 1/2
       id: write_file
       uses: timheuer/base64-to-file@v1
       with:
-        fileName: './cert.pem'
+        fileName: 'cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
 
     - name: ppppp 3
       run: CMD /r CD
+
+    - name: ppppp 4
+      run: CMD /r DIR *.pem
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
