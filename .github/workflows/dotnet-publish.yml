@@ -104,16 +104,25 @@ jobs:
       working-directory: ./src
       run: dotnet build --configuration Release
 
+    - name: ppppp 1
+      run: CMD /r CD
+
     - name: Build WinX86 EXE
       working-directory: ./src
       run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
+
+    - name: ppppp 2
+      run: CMD /r CD
 
     - name: Prepare Windows certificate 1/2
       id: write_file
       uses: timheuer/base64-to-file@v1
       with:
-        fileName: 'cert.pem'
+        fileName: './cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
+
+    - name: ppppp 3
+      run: CMD /r CD
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
