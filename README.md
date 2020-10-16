@@ -1,14 +1,19 @@
 # Easy File Pusher
 
-The Coveo Easy File Pusher is a command-line tool to push documents stored in the local file system to a Coveo Push source. The source must have been created first using the Coveo Administration Console. Then running the tool scans the specified local folder and pushes the files matching the specified filter.
+The Coveo Easy File Pusher is a command-line tool that pushes items stored in a local file system to a Coveo Push source. To use the Easy File Pusher, you must first [create a Push source using the Coveo Administration Console](https://docs.coveo.com/en/1546/). Then, run the tool to scan the specified local folder and push the files matching the specified filter.
 
-## How to use it
+## Configure the Easy File Pusher
 
-There are 2 ways to provide the input values to the tool.
+There are two ways to provide the configuration values to the tool:
 
-### Specifying the input values on the command line
+- [Specifying them on the command line](#specifying-the-configuration-valyes-on-the-command-line)
 
-The first way is to provide the input values on the command line. Running the tool with the --help argument displays the arguments that can be specified on the command line:
+- [Specifying them interactively](#specifying-the-configuration-values-interactively)
+
+### Specifying the Configuration Values on the Command Line
+
+Running the tool with the `--help` argument displays the arguments that can be specified on the command line:
+
 ```
   -e, --environment       Required. Cloud environment: Hipaa, Prod, QA or Dev.
 
@@ -34,24 +39,27 @@ The first way is to provide the input values on the command line. Running the to
 
   --version               Display version information.
 ```
-Note that for the most used arguments, each can be specified using either a long or a short name.
 
-Here is an example of what the command line should look like when specifying all the required arguments:
+The most used arguments can be specified using either a long or a short name.
+
+If you specify all required arguments, the command line should look as follows:
+
 ```
 Coveo.Connectors.EasyFilePusher -e Prod -r UsEast1 -o OrgNameHerez1x2c3v4 -s OrgNameHerez1x2c3v4-q1w2e3r4t5y6u7i8o9p0zxcvbn --apikey xxaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee -f "C:\Folder\Path\Here"
 ```
 
-### Specifying the input values interactively
+### Specifying the Configuration Values Interactively
 
-The second way is to launch the tool without any arguments. The tool will then ask to enter one by one the same input values listed in the previous section.
+Alternatively, if you choose to launch the tool without any argument, it will then prompt you to enter the configuration values listed in the previous section, one after the other.
 
 ## Supported Operating Systems
 
-Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core so Windows, Mac and Linux. An executable for each supported operating system is available for download.
+Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core, i.e., Windows, macOS, and Linux. An executable for each supported operating system is available for download.
 
-Regarding the executable for Mac, note that the executable has not been signed with a certificate. So running it requires a little trick to work around a security warning. The following procedure should work:
+Note that the macOS executable has not been signed with a certificate. As a result, running it requires a minor adjustment to work around a security warning:
+
 1. Unzip the executable file.
-2. Control-click (or right-click) it > Open (with) > Utilities > Terminal. (If Terminal is not available, change Enable: Recommended Aplications to Enable: All Apllications.)
-3. Then enter the requested input values.
+2. Control-click (or right-click) the file > **Open**/**Open with** > **Utilities** > **Terminal**. If **Terminal** isn't available, change **Enable: Recommended Applications** to **Enable: All Applications**.
+3. Enter the requested configuration values.
 
-More details about the Control-click trick can be found on the following Apple page: https://support.apple.com/en-ca/guide/mac-help/mh40616/mac
+For further information on Control-click, see [Open a Mac app from an unidentified developer](https://support.apple.com/en-ca/guide/mac-help/mh40616/mac).
