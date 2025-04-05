@@ -13,10 +13,15 @@ jobs:
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
       with:
         dotnet-version: 3.1.101
 
@@ -33,7 +38,7 @@ jobs:
       run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
 
     - name: Zip LinuxX64 EXE
-      uses: thedoctor0/zip-release@master
+      uses: thedoctor0/zip-release@a24011d8d445e4da5935a7e73c1f98e22a439464 # master
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_LinuxX64.zip'
         directory: './bin/Release/netcoreapp3.1/publish/LinuxX64'
@@ -41,7 +46,7 @@ jobs:
         type: zip
 
     - name: Zip MacOsx64 EXE
-      uses: thedoctor0/zip-release@master
+      uses: thedoctor0/zip-release@a24011d8d445e4da5935a7e73c1f98e22a439464 # master
       with:
         filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
         directory: './bin/Release/netcoreapp3.1/publish/MacOsx64'
@@ -50,14 +55,14 @@ jobs:
 
     - name: Delete existing release
       if: ${{ github.event_name == 'push' }}
-      uses: ame-yu/action-delete-latest-release@v2
+      uses: ame-yu/action-delete-latest-release@725c31f47c731521facc6f5444879a3c647e825f # v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create release
       if: ${{ github.event_name == 'push' }}
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -68,7 +73,7 @@ jobs:
 
     - name: Release Linux executable
       if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -79,7 +84,7 @@ jobs:
 
     - name: Release Mac executable
       if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -93,10 +98,15 @@ jobs:
     runs-on: windows-latest
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
       with:
         dotnet-version: 3.1.101
 
@@ -110,7 +120,7 @@ jobs:
 
     - name: Prepare Windows certificate 1/2
       id: write_pem_file
-      uses: timheuer/base64-to-file@v1
+      uses: timheuer/base64-to-file@adaa40c0c581f276132199d4cf60afa07ce60eac # v1.2
       with:
         fileName: 'cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
@@ -137,7 +147,7 @@ jobs:
 
     - name: Release Windows executable
       if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
