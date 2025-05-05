@@ -89,8 +89,7 @@ jobs:
       shell: powershell
       run: |
         cd 'C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\'
-
-        ./signtool.exe sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} ${GITHUB_WORKSPACE}\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
+        ./signtool.exe sign /f ${GITHUB_WORKSPACE}\cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} ${GITHUB_WORKSPACE}\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
 
     - name: Delete Windows temp certificate 1/2
       working-directory: .
