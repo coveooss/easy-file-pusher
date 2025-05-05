@@ -85,11 +85,10 @@ jobs:
       run: CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"
 
     - name: Sign Windows executable
-      working-directory: .
+      working-directory: 'C:\Program Files (x86)\Windows Kits\10\bin\x86\'
       shell: powershell
       run: |
-        Get-ChildItem 'C:\Program Files (x86)' -name -recurse signtool.exe
-        CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
+        CMD /r signtool.exe sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} ${GITHUB_WORKSPACE}\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
 
     - name: Delete Windows temp certificate 1/2
       working-directory: .
