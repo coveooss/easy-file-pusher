@@ -27,10 +27,7 @@ jobs:
     - name: Create variables for version
       id: nbgv
       shell: bash
-      run: |
-        dotnet nbgv cloud
-        echo "SemVer2=$(dotnet nbgv get-version --variable NuGetPackageVersion)" >> $GITHUB_OUTPUT
-        echo "${GitBuildVersionSimple}"
+      run: echo "SemVer2=$(dotnet nbgv get-version --variable NuGetPackageVersion)" >> $GITHUB_OUTPUT
 
     - name: Verify variable
       run: echo "SemVer2=${{ steps.nbgv.outputs.SemVer2 }}"
@@ -85,19 +82,19 @@ jobs:
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
-      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
+      run: CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"
 
     - name: Sign Windows executable
       working-directory: .
-      run: 'CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe'
+      run: CMD /r "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
 
     - name: Delete Windows temp certificate 1/2
       working-directory: .
-      run: 'DEL cert.pfx'
+      run: DEL cert.pfx
 
     - name: Delete Windows temp certificate 2/2
       working-directory: .
-      run: 'DEL ${{ steps.write_pem_file.outputs.filePath }}'
+      run: DEL cert.pem
 
     - name: Create Windows Zip
       working-directory: ./publish
