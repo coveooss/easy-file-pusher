@@ -82,14 +82,17 @@ jobs:
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
-      run: CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"
+      run: |
+        CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"
+        ls
 
     - name: Sign Windows executable
       working-directory: .
       shell: powershell
       run: |
+        cert_path="$(pwd)\cert.pfx"
         cd 'C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\'
-        ./signtool.exe sign /f ${GITHUB_WORKSPACE}\cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} ${GITHUB_WORKSPACE}\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
+        ./signtool.exe sign /f ${cert_path} /p ${{ secrets.WINDOWS_CERT_PWD }} ${GITHUB_WORKSPACE}\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
 
     - name: Delete Windows temp certificate 1/2
       working-directory: .
