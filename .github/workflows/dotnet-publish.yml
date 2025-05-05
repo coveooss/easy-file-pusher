@@ -26,10 +26,14 @@ jobs:
 
     - name: Create variables for version
       id: nbgv
-      run: echo "SemVer2=$(dotnet nbgv get-version --variable NuGetPackageVersion)" >> $GITHUB_OUTPUT
+      shell: bash
+      run: |
+        dotnet nbgv cloud
+        echo "SemVer2=$(dotnet nbgv get-version --variable NuGetPackageVersion)" >> $GITHUB_OUTPUT
+        echo "${GitBuildVersionSimple}"
 
     - name: Verify variable
-      run: echo 'SemVer2=${{ steps.nbgv.outputs.SemVer2 }}'
+      run: echo "SemVer2=${{ steps.nbgv.outputs.SemVer2 }}"
 
     - name: Build
       working-directory: ./src
@@ -74,19 +78,14 @@ jobs:
     - name: Prepare Windows certificate 1/2
       id: write_pem_file
       shell: bash
-      env:
-        FILENAME: 'cert.pem'
-        ENCODED_STRING: ${{ secrets.WINDOWS_CERT }}
       run: |
         # Decode the certificate and write it to a file
-        echo "${ENCODED_STRING}" | base64 --decode > ${FILENAME}
+        echo "${{ secrets.WINDOWS_CERT }}" | base64 --decode > cert.pem
         ls
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
-      env:
-        FILENAME: 'cert.pem'
-      run: 'CMD /r openssl pkcs12 -in ${FILENAME} -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
+      run: 'CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"'
 
     - name: Sign Windows executable
       working-directory: .
