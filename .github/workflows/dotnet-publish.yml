@@ -3,106 +3,69 @@ name: Publish the Easy File Pusher tool.
 on:
   push:
     branches: [ master ]
+# Just testing for the PR.
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  linux-mac:
-    runs-on: ubuntu-latest
-    outputs:
-      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-
-    - uses: actions/checkout@v2
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
-
-    - name: Build
-      working-directory: ./src
-      run: dotnet build --configuration Release
-
-    - name: Build LinuxX64 EXE
-      working-directory: ./src
-      run: dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
-
-    - name: Build MacOsx64 EXE
-      working-directory: ./src
-      run: dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
-
-    - name: Zip LinuxX64 EXE
-      uses: thedoctor0/zip-release@master
-      with:
-        filename: 'Coveo.Connectors.EasyFilePusher_LinuxX64.zip'
-        directory: './bin/Release/netcoreapp3.1/publish/LinuxX64'
-        exclusions: '*.pdb'
-        type: zip
-
-    - name: Zip MacOsx64 EXE
-      uses: thedoctor0/zip-release@master
-      with:
-        filename: 'Coveo.Connectors.EasyFilePusher_MacOsx64.zip'
-        directory: './bin/Release/netcoreapp3.1/publish/MacOsx64'
-        exclusions: '*.pdb'
-        type: zip
-
-    - name: Delete existing release
-      if: ${{ github.event_name == 'push' }}
-      uses: ame-yu/action-delete-latest-release@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create release
-      if: ${{ github.event_name == 'push' }}
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: latest
-        release_name: Latest Release
-        draft: false
-        prerelease: false
-
-    - name: Release Linux executable
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/LinuxX64/Coveo.Connectors.EasyFilePusher_LinuxX64.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_LinuxX64.zip
-        asset_content_type: application/zip
-
-    - name: Release Mac executable
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/MacOsx64/Coveo.Connectors.EasyFilePusher_MacOsx64.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_MacOsx64.zip
-        asset_content_type: application/zip
-
-  windows:
-    needs: linux-mac
+  linux-mac-windows:
     runs-on: windows-latest
     steps:
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 3.1.101
+
+    - name: Restore tools
+      run: dotnet tool restore
+
+    - name: Create variables for version
+      id: nbgv
+      run: echo "SemVer2=$(dotnet nbgv get-version --variable NuGetPackageVersion)" >> $GITHUB_OUTPUT
+
+    - name: Verify variable
+      run: echo 'SemVer2=${{ steps.nbgv.outputs.SemVer2 }}'
 
     - name: Build
       working-directory: ./src
       run: dotnet build --configuration Release
+
+    - name: Create Publish directory
+      working-directory: .
+      run: mkdir ./publish
+
+    - name: Create LinuxX64 Zip
+      working-directory: ./src
+      shell: powershell
+      run: |
+        dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
+        $files=Get-ChildItem -Path ./../bin/Release/netcoreapp3.1/publish/LinuxX64 -Exclude *.pdb
+        echo ${files}
+        $compress = @{
+          Path = $files
+          CompressionLevel = "Fastest"
+          DestinationPath = "./../publish/Coveo.Connectors.EasyFilePusher_LinuxX64.zip"
+          }
+        Compress-Archive @compress
+
+    - name: Create  MacOsx64 Zip
+      working-directory: ./src
+      shell: powershell
+      run: |
+        dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
+        $files=Get-ChildItem -Path ./../bin/Release/netcoreapp3.1/publish/MacOsx64 -Exclude *.pdb
+        echo ${files}
+        $compress = @{
+          Path = $files
+          CompressionLevel = "Fastest"
+          DestinationPath = "./../publish/Coveo.Connectors.EasyFilePusher_MacOsx64.zip"
+          }
+        Compress-Archive @compress
 
     - name: Build WinX86 EXE
       working-directory: ./src
@@ -110,10 +73,13 @@ jobs:
 
     - name: Prepare Windows certificate 1/2
       id: write_pem_file
-      uses: timheuer/base64-to-file@v1
-      with:
+      shell: bash
+      env:
         fileName: 'cert.pem'
         encodedString: ${{ secrets.WINDOWS_CERT }}
+      run: |
+        # Decode the certificate and write it to a file
+        echo "${{ secrets.WINDOWS_CERT }}" | base64 --decode > cert.pem
 
     - name: Prepare Windows certificate 2/2
       working-directory: .
@@ -131,17 +97,16 @@ jobs:
       working-directory: .
       run: 'DEL ${{ steps.write_pem_file.outputs.filePath }}'
 
-    - name: Zip WinX86 EXE
-      working-directory: .
-      run: 'Compress-Archive bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher_WinX86.zip'
+    - name: Create Windows Zip
+      working-directory: ./publish
+      run: |
+        Compress-Archive .\..\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe Coveo.Connectors.EasyFilePusher_WinX86.zip
+        ls
 
-    - name: Release Windows executable
+    # Publish Github Release
+    - name: Create release
       if: ${{ github.event_name == 'push' }}
-      uses: actions/upload-release-asset@v1
+      working-directory: ./publish
+      run: gh release create v${{ steps.nbgv.outputs.SemVer2 }} --generate-notes --target $GITHUB_SHA ./*.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.linux-mac.outputs.release_upload_url }}
-        asset_path: ./bin/Release/netcoreapp3.1/publish/WinX86/Coveo.Connectors.EasyFilePusher_WinX86.zip
-        asset_name: Coveo.Connectors.EasyFilePusher_WinX86.zip
-        asset_content_type: application/zip
