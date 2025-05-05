@@ -7,49 +7,41 @@ namespace Coveo.Connectors.EasyFilePusher
     /// </summary>
     internal class ProgramArguments
     {
-        [Option('e', nameof(environment),
+        [Option(
+            'e',
+            nameof(environment),
             Required = true,
-            HelpText = "Cloud environment: " + nameof(CloudEnvironment.Hipaa) + ", " + nameof(CloudEnvironment.Prod) + ", " + nameof(CloudEnvironment.QA) + " or " + nameof(CloudEnvironment.Dev) + ".")]
+            HelpText = $"Cloud environment: {nameof(CloudEnvironment.Hipaa)} or {nameof(CloudEnvironment.Prod)}."
+        )]
         public CloudEnvironment environment { get; set; }
 
-        [Option('r', nameof(region),
+        [Option(
+            'r',
+            nameof(region),
             Required = true,
-            HelpText = "Cloud region: " + nameof(CloudRegion.UsEast1) + ", " + nameof(CloudRegion.EuWest1) + " or " + nameof(CloudRegion.ApSouthEast2) + ".")]
+            HelpText = "Cloud region: " + nameof(CloudRegion.UsEast1) + ", " + nameof(CloudRegion.EuWest1) + " or " + nameof(CloudRegion.ApSouthEast2) + "."
+        )]
         public CloudRegion region { get; set; }
 
-        [Option('o', nameof(organizationid),
-            Required = true,
-            HelpText = "ID of the organization in which to push documents.")]
+        [Option('o', nameof(organizationid), Required = true, HelpText = "ID of the organization in which to push documents.")]
         public string organizationid { get; set; } = "";
 
-        [Option('s', nameof(sourceid),
-            Required = true,
-            HelpText = "ID of the source in which to push documents.")]
+        [Option('s', nameof(sourceid), Required = true, HelpText = "ID of the source in which to push documents.")]
         public string sourceid { get; set; } = "";
 
-        [Option('k', nameof(apikey),
-            Required = true,
-            HelpText = "API key to use.")]
+        [Option('k', nameof(apikey), Required = true, HelpText = "API key to use.")]
         public string apikey { get; set; } = "";
 
-        [Option('f', nameof(folder),
-            Required = true,
-            HelpText = "Path of the local folder that contains the documents to index.")]
+        [Option('f', nameof(folder), Required = true, HelpText = "Path of the local folder that contains the documents to index.")]
         public string folder { get; set; } = "";
 
-        [Option(
-            Default = "*",
-            HelpText = "Wildcard expression for which matching files will be pushed. All files are pushed by default.")]
+        [Option(Default = "*", HelpText = "Wildcard expression for which matching files will be pushed. All files are pushed by default.")]
         public string include { get; set; } = "";
 
-        [Option(
-            Default = true,
-            HelpText = "Whether to recursively search in sub-folders for files to push. Sub-folders are searched by default.")]
+        [Option(Default = true, HelpText = "Whether to recursively search in sub-folders for files to push. Sub-folders are searched by default.")]
         public bool recursive { get; set; }
 
-        [Option(
-            Default = 10,
-            HelpText = "How many files to push per batch.")]
+        [Option(Default = 10, HelpText = "How many files to push per batch.")]
         public int batchSize { get; set; }
     }
 
@@ -60,8 +52,6 @@ namespace Coveo.Connectors.EasyFilePusher
     {
         Hipaa,
         Prod,
-        QA,
-        Dev
     }
 
     /// <summary>
@@ -71,6 +61,6 @@ namespace Coveo.Connectors.EasyFilePusher
     {
         UsEast1,
         EuWest1,
-        ApSouthEast2
+        ApSouthEast2,
     }
 }

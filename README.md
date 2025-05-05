@@ -15,9 +15,9 @@ There are two ways to provide the configuration values to the tool:
 Running the tool with the `--help` argument displays the arguments that can be specified on the command line:
 
 ```
-  -e, --environment       Required. Cloud environment: Hipaa, Prod, QA or Dev.
+  -e, --environment       Required. Cloud environment: Hipaa or Prod.
 
-  -r, --region            Required. Cloud region: UsEast1 or EuWest1.
+  -r, --region            Required. Cloud region: UsEast1, EuWest1 or ApSouthEast2.
 
   -o, --organizationid    Required. ID of the organization in which to push documents.
 
