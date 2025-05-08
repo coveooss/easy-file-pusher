@@ -3,7 +3,6 @@ name: Publish the Easy File Pusher tool.
 on:
   push:
     branches: [ master ]
-# Just testing for the PR.
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -16,10 +15,10 @@ jobs:
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
-    - name: Setup .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 8
 
     - name: Restore tools
       run: dotnet tool restore
@@ -36,80 +35,10 @@ jobs:
       working-directory: ./src
       run: dotnet build --configuration Release
 
-    - name: Create Publish directory
-      working-directory: .
-      run: mkdir ./publish
-
-    - name: Create LinuxX64 Zip
-      working-directory: ./src
-      shell: powershell
-      run: |
-        dotnet publish -p:PublishProfile=LinuxX64 --configuration Release
-        $files=Get-ChildItem -Path ./../bin/Release/netcoreapp3.1/publish/LinuxX64 -Exclude *.pdb
-        echo ${files}
-        $compress = @{
-          Path = $files
-          CompressionLevel = "Fastest"
-          DestinationPath = "./../publish/Coveo.Connectors.EasyFilePusher_LinuxX64.zip"
-          }
-        Compress-Archive @compress
-
-    - name: Create  MacOsx64 Zip
-      working-directory: ./src
-      shell: powershell
-      run: |
-        dotnet publish -p:PublishProfile=MacOsx64 --configuration Release
-        $files=Get-ChildItem -Path ./../bin/Release/netcoreapp3.1/publish/MacOsx64 -Exclude *.pdb
-        echo ${files}
-        $compress = @{
-          Path = $files
-          CompressionLevel = "Fastest"
-          DestinationPath = "./../publish/Coveo.Connectors.EasyFilePusher_MacOsx64.zip"
-          }
-        Compress-Archive @compress
-
-    - name: Build WinX86 EXE
-      working-directory: ./src
-      run: dotnet publish -p:PublishProfile=WinX86 --configuration Release
-
-    - name: Prepare Windows certificate 1/2
-      id: write_pem_file
-      shell: bash
-      run: |
-        # Decode the certificate and write it to a file
-        echo "${{ secrets.WINDOWS_CERT }}" | base64 --decode > cert.pem
-        ls
-
-    - name: Prepare Windows certificate 2/2
-      working-directory: .
-      run: |
-        CMD /r openssl pkcs12 -in cert.pem -export -out cert.pfx -passin pass:"${{ secrets.WINDOWS_CERT_PWD }}" -passout pass:"${{ secrets.WINDOWS_CERT_PWD }}"
-        ls
-
-    - name: Sign Windows executable
-      working-directory: .
-      shell: powershell
-      run: |
-        & "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe" sign /debug /f cert.pfx /p ${{ secrets.WINDOWS_CERT_PWD }} bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe
-
-    - name: Delete Windows temp certificate 1/2
-      working-directory: .
-      run: DEL cert.pfx
-
-    - name: Delete Windows temp certificate 2/2
-      working-directory: .
-      run: DEL cert.pem
-
-    - name: Create Windows Zip
-      working-directory: ./publish
-      run: |
-        Compress-Archive .\..\bin\Release\netcoreapp3.1\publish\WinX86\Coveo.Connectors.EasyFilePusher.exe Coveo.Connectors.EasyFilePusher_WinX86.zip
-        ls
-
     # Publish Github Release
     - name: Create release
       if: ${{ github.event_name == 'push' }}
-      working-directory: ./publish
-      run: gh release create v${{ steps.nbgv.outputs.SemVer2 }} --generate-notes --target $GITHUB_SHA ./*.zip
+      working-directory: .
+      run: gh release create v${{ steps.nbgv.outputs.SemVer2 }} --generate-notes --target $GITHUB_SHA
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,19 @@
 
 The Coveo Easy File Pusher is a command-line tool that pushes items stored in a local file system to a Coveo Push source. To use the Easy File Pusher, you must first [create a Push source using the Coveo Administration Console](https://docs.coveo.com/en/1546/). Then, run the tool to scan the specified local folder and push the files matching the specified filter.
 
+## Compile the Easy File Pusher
+
+Having the .Net 8 SDK is necessary for compiling the tool. See here for downloads applicable to your operating system: [https://dotnet.microsoft.com/en-us/download/dotnet/8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+
+First navigate in your terminal to the `src` folder.
+
+- Run one of the following commands:
+  - Windows: `dotnet publish -p:PublishProfile=WinX86 --configuration Release`
+  - Linux: `dotnet publish -p:PublishProfile=LinuxX64 --configuration Release`
+  - Mac: `dotnet publish -p:PublishProfile=MacOsx64 --configuration Release`
+
+The compiled executable will be found in `src/publish`.
+
 ## Configure the Easy File Pusher
 
 There are two ways to provide the configuration values to the tool:
@@ -54,9 +67,9 @@ Alternatively, if you choose to launch the tool without any argument, it will th
 
 ## Supported Operating Systems
 
-Since the tool was developed using .NET Core, it can be executed on the operating systems supported by .NET Core, i.e., Windows, macOS, and Linux. An executable for each supported operating system is available for download.
+Since the tool was developed using .NET 8, it can be executed on the operating systems supported by .NET 8, i.e., Windows, macOS, and Linux.
 
-Note that the macOS executable has not been signed with a certificate. As a result, running it requires a minor adjustment to work around a security warning:
+Note that the macOS executable has not been signed with a certificate. If you get a security warning when running it, you might have to do a minor adjustment:
 
 1. Unzip the executable file.
 2. Control-click (or right-click) the file > **Open**/**Open with** > **Utilities** > **Terminal**. If **Terminal** isn't available, change **Enable: Recommended Applications** to **Enable: All Applications**.
