@@ -276,6 +276,16 @@ namespace Coveo.Connectors.EasyFilePusher
                         default:
                             throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
                     }
+                case CloudRegion.CaCentral1:
+                    switch (p_Args.environment)
+                    {
+                        case CloudEnvironment.Prod:
+                            return Constants.Endpoint.CaCentral1.PROD_PUSH_API_URL;
+                        case CloudEnvironment.Hipaa:
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, p_Args.environment, p_Args.region));
+                        default:
+                            throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
+                    }
                 default:
                     throw new InvalidEnumArgumentException(INVALID_CLOUD_REGION);
             }
@@ -315,6 +325,16 @@ namespace Coveo.Connectors.EasyFilePusher
                     {
                         case CloudEnvironment.Prod:
                             return Constants.PlatformEndpoint.ApSoutheast2.PROD_PLATFORM_API_URL;
+                        case CloudEnvironment.Hipaa:
+                            throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, args.environment, args.region));
+                        default:
+                            throw new InvalidEnumArgumentException(INVALID_CLOUD_ENVIRONMENT);
+                    }
+                case CloudRegion.CaCentral1:
+                    switch (args.environment)
+                    {
+                        case CloudEnvironment.Prod:
+                            return Constants.PlatformEndpoint.CaCentral1.PROD_PLATFORM_API_URL;
                         case CloudEnvironment.Hipaa:
                             throw new InvalidEnumArgumentException(string.Format(ENVIRONMENT_X_IS_INVALID_FOR_REGION_Y, args.environment, args.region));
                         default:

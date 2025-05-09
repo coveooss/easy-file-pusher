@@ -30,7 +30,7 @@ Running the tool with the `--help` argument displays the arguments that can be s
 ```
   -e, --environment       Required. Cloud environment: Hipaa or Prod.
 
-  -r, --region            Required. Cloud region: UsEast1, EuWest1 or ApSouthEast2.
+  -r, --region            Required. Cloud region: UsEast1, EuWest1, ApSouthEast2 or CaCentral1.
 
   -o, --organizationid    Required. ID of the organization in which to push documents.
 
