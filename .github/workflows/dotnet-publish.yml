@@ -39,6 +39,6 @@ jobs:
     - name: Create release
       if: ${{ github.event_name == 'push' }}
       working-directory: .
-      run: gh release create v${{ steps.nbgv.outputs.SemVer2 }} --generate-notes --target $GITHUB_SHA
+      run: gh release create v${{ steps.nbgv.outputs.SemVer2 }} --generate-notes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
